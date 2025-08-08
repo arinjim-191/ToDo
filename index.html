@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Advanced To-Do App</title>
+<style>
+  :root {
+    --bg: #f5f5f5;
+    --text: #333;
+    --card: #fff;
+    --primary: #28a745;
+    --secondary: #007bff;
+  }
+  [data-theme="dark"] {
+    --bg: #1e1e1e;
+    --text: #ddd;
+    --card: #2c2c2c;
+    --primary: #4caf50;
+    --secondary: #66b0ff;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+    background: var(--bg);
+    color: var(--text);
+    transition: background 0.3s, color 0.3s;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  h1 {
+    margin: 0;
+  }
+  #theme-toggle {
+    cursor: pointer;
+    background: var(--secondary);
+    color: #fff;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+  }
+  form {
+    background: var(--card);
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  form input, form select, form button {
+    padding: 8px;
+    margin: 5px 0;
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  form button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    font-size: 1rem;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+  }
+  li {
+    background: var(--card);
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .priority-high { color: red; }
+  .priority-medium { color: orange; }
+  .priority-low { color: green; }
+  .tags {
+    font-size: 0.9em;
+    opacity: 0.8;
+  }
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 5px;
+  }
+  .actions button {
+    border: none;
+    padding: 5px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .done {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+  a.attachment {
+    color: var(--secondary);
+    font-size: 0.9em;
+    word-break: break-all;
+  }
+  @media (max-width: 500px) {
+    form { font-size: 0.9rem; }
+  }
+</style>
+</head>
+<body data-theme="light">
+
+<header>
+  <h1>My To-Do List</h1>
+  <button id="theme-toggle">Dark Mode</button>
+</header>
+
+<form id="task-form">
+  <input type="text" id="task-text" placeholder="Task title..." required>
+  <input type="date" id="task-date">
+  <input type="time" id="task-time">
+  <select id="task-priority">
+    <option value="high">High Priority</option>
+    <option value="medium" selected>Medium Priority</option>
+    <option value="low">Low Priority</option>
+  </select>
+  <input type="text" id="task-tags" placeholder="Tags (comma separated)">
+  <input type="file" id="task-attachment" accept="image/*,.pdf,.doc,.docx,.txt">
+  <button type="submit">Add Task</button>
+</form>
+
+<ul id="task-list"></ul>
+
+<script>
+  const form = document.getElementById('task-form');
+  const taskList = document.getElementById('task-list');
+  const themeToggle = document.getElementById('theme-toggle');
+  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  let theme = localStorage.getItem('theme') || 'light';
+  document.body.setAttribute('data-theme', theme);
+  themeToggle.textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
+
+  function renderTasks() {
+    taskList.innerHTML = '';
+    tasks.forEach((task, index) => {
+      const li = document.createElement('li');
+      if (task.completed) li.classList.add('done');
+
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'task-header';
+
+      const title = document.createElement('strong');
+      title.textContent = task.text;
+      title.classList.add(`priority-${task.priority}`);
+
+      const dateTime = document.createElement('span');
+      dateTime.textContent = `${task.date || ''} ${task.time || ''}`.trim();
+
+      headerDiv.appendChild(title);
+      headerDiv.appendChild(dateTime);
+      li.appendChild(headerDiv);
+
+      if (task.tags) {
+        const tagSpan = document.createElement('div');
+        tagSpan.className = 'tags';
+        tagSpan.textContent = `Tags: ${task.tags}`;
+        li.appendChild(tagSpan);
+      }
+
+      if (task.attachmentName && task.attachmentURL) {
+        const fileLink = document.createElement('a');
+        fileLink.href = task.attachmentURL;
+        fileLink.target = '_blank';
+        fileLink.className = 'attachment';
+        fileLink.textContent = `Attachment: ${task.attachmentName}`;
+        li.appendChild(fileLink);
+      }
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'actions';
+
+      const doneBtn = document.createElement('button');
+      doneBtn.textContent = '✔';
+      doneBtn.style.background = '#4caf50';
+      doneBtn.onclick = () => {
+        task.completed = !task.completed;
+        saveTasks();
+      };
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '✖';
+      delBtn.style.background = '#dc3545';
+      delBtn.onclick = () => {
+        tasks.splice(index, 1);
+        saveTasks();
+      };
+
+      actionsDiv.appendChild(doneBtn);
+      actionsDiv.appendChild(delBtn);
+      li.appendChild(actionsDiv);
+
+      taskList.appendChild(li);
+    });
+  }
+
+  function saveTasks() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+    renderTasks();
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const text = document.getElementById('task-text').value.trim();
+    const date = document.getElementById('task-date').value;
+    const time = document.getElementById('task-time').value;
+    const priority = document.getElementById('task-priority').value;
+    const tags = document.getElementById('task-tags').value.trim();
+    const fileInput = document.getElementById('task-attachment');
+
+    let attachmentName = '';
+    let attachmentURL = '';
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      attachmentName = file.name;
+      attachmentURL = URL.createObjectURL(file);
+    }
+
+    tasks.push({
+      text,
+      date,
+      time,
+      priority,
+      tags,
+      attachmentName,
+      attachmentURL,
+      completed: false
+    });
+    form.reset();
+    saveTasks();
+  });
+
+  themeToggle.addEventListener('click', () => {
+    theme = theme === 'light' ? 'dark' : 'light';
+    document.body.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    themeToggle.textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
+  });
+
+  renderTasks();
+</script>
+
+</body>
+</html>

@@ -1,222 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dark To-Do App</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart To-Do App</title>
 <style>
-  :root {
-    --bg: #1e1e1e;
-    --text: #fff;
-    --card: #2c2c2c;
-    --primary: #4caf50;
-    --secondary: #66b0ff;
-  }
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 900px;
-    margin: auto;
-    padding: 20px;
-    background: var(--bg);
-    color: var(--text);
-  }
-  header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  h1 {
-    margin: 0;
-  }
-
-  /* Task input bar */
-  .task-bar {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-  }
-  .task-bar input {
-    flex: 1;
-    min-width: 250px;
-    padding: 8px;
-    border-radius: 4px;
-    border: none;
-    outline: none;
-    background: var(--card);
-    color: var(--text);
-  }
-  .task-bar button {
-    padding: 0 12px;
-    background: var(--primary);
-    border: none;
-    color: white;
-    font-size: 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  /* Details panel (hidden until needed) */
-  .details-panel {
-    background: var(--card);
-    padding: 10px;
-    margin: auto;
-    margin-bottom: 20px;
-    border-radius: 4px;
-    max-width: 400px;
-    display: none;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .details-panel input, 
-  .details-panel select {
-    padding: 6px;
-    border: none;
-    border-radius: 4px;
-    background: #3a3a3a;
-    color: var(--text);
-  }
-
-  /* Task grid */
-  #task-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 12px;
-  }
-  .task-card {
-    background: var(--card);
-    padding: 10px;
-    border-radius: 6px;
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .task-card.completed span {
-    text-decoration: line-through;
-    opacity: 0.7;
-  }
-  .task-card input[type="checkbox"] {
-    accent-color: var(--primary);
-    transform: scale(1.2);
-    margin-top: 4px;
-  }
-  .task-text {
-    flex: 1;
-    color: var(--text);
-  }
-  .task-meta {
-    font-size: 0.8rem;
-    opacity: 0.7;
-    margin-top: 4px;
-  }
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: white;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+    }
+    .task-input-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .input-row {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+        justify-content: center;
+    }
+    input[type="text"] {
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        width: 70%;
+        outline: none;
+    }
+    button.add-task {
+        background-color: #4cafef;
+        border: none;
+        color: white;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .extra-options {
+        display: none;
+        margin-top: 10px;
+        width: 80%;
+        background: #1f1f1f;
+        padding: 10px;
+        border-radius: 5px;
+        animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+        from {opacity: 0; transform: translateY(-5px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+    input, select {
+        padding: 6px;
+        border-radius: 5px;
+        border: none;
+        outline: none;
+        margin-right: 5px;
+    }
+    .task-list {
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 10px;
+    }
+    .task {
+        background: #1f1f1f;
+        padding: 12px;
+        border-radius: 8px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .task.completed {
+        text-decoration: line-through;
+        opacity: 0.6;
+    }
+    .checkbox-icon {
+        cursor: pointer;
+        font-size: 18px;
+    }
+    .priority-high { border-left: 5px solid #EB5353; }
+    .priority-mid { border-left: 5px solid #FF7601; }
+    .priority-low { border-left: 5px solid #074799; }
+    .menu {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        cursor: pointer;
+    }
+    .menu-options {
+        display: none;
+        position: absolute;
+        right: 5px;
+        top: 28px;
+        background: #2a2a2a;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    .menu-options button {
+        display: block;
+        background: none;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        text-align: left;
+        cursor: pointer;
+        width: 100%;
+    }
+    .menu-options button:hover {
+        background: #3a3a3a;
+    }
+    .edit-mode input, .edit-mode select {
+        width: 100%;
+        margin-bottom: 5px;
+    }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>To-Do List</h1>
-</header>
-
-<!-- Simple Task Bar -->
-<div class="task-bar">
-  <input type="text" id="task-title" placeholder="Enter task..." />
-  <button id="add-btn">+</button>
+<div class="container">
+    <h1>Smart To-Do App</h1>
+    <div class="task-input-container">
+        <div class="input-row">
+            <input type="text" id="taskInput" placeholder="Add a new task...">
+            <button class="add-task" id="addTaskBtn">+</button>
+        </div>
+        <div class="extra-options" id="extraOptions">
+            <input type="date" id="taskDate">
+            <input type="time" id="taskTime">
+            <select id="taskPriority">
+                <option value="">Priority</option>
+                <option value="high">High</option>
+                <option value="mid">Mid</option>
+                <option value="low">Low</option>
+            </select>
+        </div>
+    </div>
+    <div class="task-list" id="taskList"></div>
 </div>
-
-<!-- Details Panel -->
-<div class="details-panel" id="details-panel">
-  <input type="time" id="task-time" />
-  <select id="task-priority">
-    <option value="high">High Priority</option>
-    <option value="medium" selected>Medium Priority</option>
-    <option value="low">Low Priority</option>
-  </select>
-  <input type="text" id="task-tags" placeholder="Tags (comma separated)" />
-  <button id="save-task">Save Task</button>
-</div>
-
-<!-- Task Grid -->
-<div id="task-list"></div>
 
 <script>
-  const addBtn = document.getElementById('add-btn');
-  const saveBtn = document.getElementById('save-task');
-  const detailsPanel = document.getElementById('details-panel');
-  const taskListEl = document.getElementById('task-list');
+    const taskInput = document.getElementById('taskInput');
+    const extraOptions = document.getElementById('extraOptions');
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const taskList = document.getElementById('taskList');
 
-  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-  let tempTitle = '';
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
-  function renderTasks() {
-    taskListEl.innerHTML = '';
-    tasks.forEach((task, idx) => {
-      const card = document.createElement('div');
-      card.className = 'task-card';
-      if (task.completed) card.classList.add('completed');
+    document.addEventListener('click', (e) => {
+        if (taskInput.contains(e.target)) {
+            extraOptions.style.display = 'block';
+        } else if (!extraOptions.contains(e.target)) {
+            extraOptions.style.display = 'none';
+        }
+    });
 
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.checked = task.completed;
-      checkbox.onchange = () => {
-        task.completed = !task.completed;
+    addTaskBtn.addEventListener('click', () => {
+        const text = taskInput.value.trim();
+        const date = document.getElementById('taskDate').value;
+        const time = document.getElementById('taskTime').value;
+        const priority = document.getElementById('taskPriority').value;
+        if (text) {
+            tasks.push({ text, date, time, priority, completed: false });
+            saveTasks();
+            renderTasks();
+            taskInput.value = '';
+            document.getElementById('taskDate').value = '';
+            document.getElementById('taskTime').value = '';
+            document.getElementById('taskPriority').value = '';
+            extraOptions.style.display = 'none';
+        }
+    });
+
+    function renderTasks() {
+        taskList.innerHTML = '';
+        tasks.forEach((task, index) => {
+            const div = document.createElement('div');
+            div.className = `task ${task.completed ? 'completed' : ''} priority-${task.priority || 'low'}`;
+
+            const checkbox = document.createElement('span');
+            checkbox.className = 'checkbox-icon';
+            checkbox.innerHTML = task.completed ? '✔️' : '⭕';
+            checkbox.onclick = () => {
+                task.completed = !task.completed;
+                saveTasks();
+                renderTasks();
+            };
+
+            const text = document.createElement('div');
+            text.innerHTML = `<strong>${task.text}</strong><br><small>${task.date || ''} ${task.time || ''}</small>`;
+
+            const menu = document.createElement('div');
+            menu.className = 'menu';
+            menu.innerHTML = '⋮';
+            const menuOptions = document.createElement('div');
+            menuOptions.className = 'menu-options';
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edit';
+            editBtn.onclick = () => editTask(index);
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.onclick = () => {
+                tasks.splice(index, 1);
+                saveTasks();
+                renderTasks();
+            };
+            menuOptions.appendChild(editBtn);
+            menuOptions.appendChild(deleteBtn);
+            menu.appendChild(menuOptions);
+
+            menu.onclick = (e) => {
+                e.stopPropagation();
+                menuOptions.style.display = menuOptions.style.display === 'block' ? 'none' : 'block';
+            };
+
+            div.appendChild(checkbox);
+            div.appendChild(text);
+            div.appendChild(menu);
+            taskList.appendChild(div);
+        });
+    }
+
+    function editTask(index) {
+        const task = tasks[index];
+        const div = document.createElement('div');
+        div.className = 'task edit-mode';
+        div.innerHTML = `
+            <input type="text" id="editText" value="${task.text}">
+            <input type="date" id="editDate" value="${task.date || ''}">
+            <input type="time" id="editTime" value="${task.time || ''}">
+            <select id="editPriority">
+                <option value="high" ${task.priority === 'high' ? 'selected' : ''}>High</option>
+                <option value="mid" ${task.priority === 'mid' ? 'selected' : ''}>Mid</option>
+                <option value="low" ${task.priority === 'low' ? 'selected' : ''}>Low</option>
+            </select>
+            <button onclick="saveEdit(${index})">Save</button>
+        `;
+        taskList.replaceChild(div, taskList.children[index]);
+    }
+
+    function saveEdit(index) {
+        tasks[index].text = document.getElementById('editText').value;
+        tasks[index].date = document.getElementById('editDate').value;
+        tasks[index].time = document.getElementById('editTime').value;
+        tasks[index].priority = document.getElementById('editPriority').value;
         saveTasks();
-      };
+        renderTasks();
+    }
 
-      const textWrap = document.createElement('div');
-      const span = document.createElement('span');
-      span.className = 'task-text';
-      span.textContent = task.title;
+    function saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
 
-      const meta = document.createElement('div');
-      meta.className = 'task-meta';
-      meta.textContent = `${task.time || ''} | ${task.priority} | ${task.tags || ''}`;
-
-      textWrap.appendChild(span);
-      if (task.time || task.priority || task.tags) {
-        textWrap.appendChild(meta);
-      }
-
-      card.appendChild(checkbox);
-      card.appendChild(textWrap);
-      taskListEl.appendChild(card);
-    });
-  }
-
-  function saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
     renderTasks();
-  }
-
-  addBtn.addEventListener('click', () => {
-    tempTitle = document.getElementById('task-title').value.trim();
-    if (!tempTitle) return;
-    detailsPanel.style.display = 'flex';
-  });
-
-  saveBtn.addEventListener('click', () => {
-    const time = document.getElementById('task-time').value;
-    const priority = document.getElementById('task-priority').value;
-    const tags = document.getElementById('task-tags').value.trim();
-
-    tasks.push({
-      title: tempTitle,
-      time,
-      priority,
-      tags,
-      completed: false
-    });
-
-    document.getElementById('task-title').value = '';
-    document.getElementById('task-time').value = '';
-    document.getElementById('task-priority').value = 'medium';
-    document.getElementById('task-tags').value = '';
-    detailsPanel.style.display = 'none';
-
-    saveTasks();
-  });
-
-  renderTasks();
 </script>
-
 </body>
 </html>
